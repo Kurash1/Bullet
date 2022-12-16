@@ -124,16 +124,16 @@ public class CharacterController2d : MonoBehaviour
             {
                 arrow.localPosition = new Vector3(0, 0, 2);
                 score += 1;
-                if(score % 25 == 0)
+                if(score % 10 == 0)
                 {
                     SpawnMonster<AngryMonster>();
                 }
-                if(score % 10 == 0)
+                if(score % 5 == 0)
                 {
                     FireballAmount++;
                     BulletField.text = FireballAmount.ToString();
                 }
-                if(score % 50 == 0)
+                if(score % 25 == 0)
                 {
                     switch (Random.Range(0, 2))
                     {
@@ -145,7 +145,7 @@ public class CharacterController2d : MonoBehaviour
                             break;
                     }
                 }
-                if(score % 150 == 0)
+                if(score % 100 == 0)
                 {
                     SpawnMonster<GhostMonster>();
                 }
@@ -233,7 +233,7 @@ public class CharacterController2d : MonoBehaviour
         {
             FireballAmount--;
             BulletField.text = FireballAmount.ToString();
-            SpawnProjectile<FireBall>().ghost = gameObject.GetComponent<abilityGhost>().active;
+            SpawnProjectile<FireBall>().ghost = upgrade == "Ghost Hunter" || gameObject.GetComponent<abilityGhost>().active;
         }
     }
     public T SpawnRandom<T>(Vector2 pos) where T : Component

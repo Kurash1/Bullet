@@ -176,7 +176,7 @@ public class abilityNecromancy : ability
     public override void cast()
     {
         base.cast();
-        for (int i = 0; i < Mathf.Min(control.killcount - lastkill,75); i++)
+        for (int i = 0; i < Mathf.Min(control.killcount - lastkill,control.upgrade == "Graveyard"?150:75); i++)
         {
             control.SpawnRandom<FireBall>(Camera.main.ScreenToWorldPoint(Input.mousePosition)).angle = 7714;
         }
