@@ -19,6 +19,9 @@ public class CharacterController2d : MonoBehaviour
     [SerializeField] Text BulletField;
     [SerializeField] private Rigidbody2D body;
     [SerializeField] private Transform arrow;
+    [SerializeField] private Text time;
+    private float secondtimer = 1;
+    private float timemult = 1;
     //Constants
     [SerializeField] private float BaseMoveSpeed;
     //Resources
@@ -83,6 +86,13 @@ public class CharacterController2d : MonoBehaviour
     }
     void Update()
     {
+        secondtimer += Time.deltaTime;
+        timemult = Mathf.Max(Mathf.Pow(secondtimer%30+1,3)/1000f,1) + secondtimer/30;
+        time.text =
+        "Time (seconds)\n" +
+        (int)(secondtimer) +
+        "\nSpeed\n" +
+        (int)(timemult * 100) + "%";
         //Vector2 toVector2(Vector3 a) { return new Vector2(a.x, a.y); }
         //transform.up = toVector2(Camera.ScreenToWorldPoint(Input.mousePosition) - transform.position);
         Vector2 MousePos = Camera.ScreenToWorldPoint(Input.mousePosition);
@@ -105,7 +115,7 @@ public class CharacterController2d : MonoBehaviour
         tryFireBall();
         HandleCamera();
         timer += Time.deltaTime;
-        if (timer > (1f / Mathf.Pow(score+1, 0.33f)))
+        if (timer > (1f / timemult))
         {
             scor.text = "Killcount: " + killcount;
             timer = 0;
