@@ -10,7 +10,7 @@ public class CharacterController2d : MonoBehaviour
 {
     //Variables
     private float MoveSpeed;
-    public float killcount = 0;
+    public int killcount = 0;
     private float score = 0;
     private double timer = 0;
     //Objects
@@ -214,6 +214,10 @@ public class CharacterController2d : MonoBehaviour
     }
     void HandleMovement()
     {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            regenRandomAbility();
+        }
         if (Input.GetKey(KeyCode.LeftShift))//|comet) 
             MoveSpeed = BaseMoveSpeed * 2;
         else
@@ -231,6 +235,13 @@ public class CharacterController2d : MonoBehaviour
             BulletField.text = FireballAmount.ToString();
             SpawnProjectile<FireBall>().ghost = gameObject.GetComponent<abilityGhost>().active;
         }
+    }
+    public T SpawnRandom<T>(Vector2 pos) where T : Component
+    {
+        GameObject gn = new GameObject();
+        float angle = Random.Range(0f, 360f);
+        gn.transform.position = Vector2.MoveTowards(pos, new Vector2(pos.x + (Mathf.Cos(angle) * 10), pos.y + (Mathf.Sin(angle) * 10)), Random.Range(5f, 10f));
+        return gn.AddComponent<T>();
     }
     public T SpawnMonster<T>() where T : Component
     {

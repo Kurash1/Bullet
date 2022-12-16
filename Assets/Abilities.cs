@@ -172,18 +172,24 @@ public class abilityComet : ability
 }
 public class abilityNecromancy : ability
 {
+    private int lastkill = 0;
     public override void cast()
     {
         base.cast();
-        GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Ghost");
-        for(int i = 0; i < ghosts.Length; i++)
+        for (int i = 0; i < Mathf.Min(control.killcount - lastkill,75); i++)
         {
-            for (float c = 0f; c <= Mathf.PI * 2; c += 0.1f)
-            {
-                SpawnProjectile<FireCircle>(c,ghosts[i].transform.position);
-            }
-            Destroy(ghosts[i]);
+            control.SpawnRandom<FireBall>(Camera.main.ScreenToWorldPoint(Input.mousePosition)).angle = 7714;
         }
+        lastkill = control.killcount;
+        //GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Ghost");
+        //for(int i = 0; i < ghosts.Length; i++)
+        //{
+        //    for (float c = 0f; c <= Mathf.PI * 2; c += 0.1f)
+        //    {
+        //        SpawnProjectile<FireCircle>(c,ghosts[i].transform.position);
+        //    }
+        //    Destroy(ghosts[i]);
+        //}
     }
 }
 public class abilityWall : ability
@@ -192,8 +198,15 @@ public class abilityWall : ability
     {
         base.cast();
         Vector2 point = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        SpawnMonster<Wall>(point).angle = (getMouseAngle() + Mathf.PI / 2);
-        SpawnMonster<Wall>(Vector2.MoveTowards(transform.position,point,-Vector2.Distance(transform.position,point))).angle = (getMouseAngle() + Mathf.PI / 2);
+        if(control.upgrade == "House")
+        {
+            SpawnMonster<house>(point).angle = (getMouseAngle() + Mathf.PI / 2);
+        }
+        else
+        {
+            SpawnMonster<Wall>(point).angle = (getMouseAngle() + Mathf.PI / 2);
+            SpawnMonster<Wall>(Vector2.MoveTowards(transform.position, point, -Vector2.Distance(transform.position, point))).angle = (getMouseAngle() + Mathf.PI / 2);
+        }
     }
 }
 public class abilityTurret : ability

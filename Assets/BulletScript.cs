@@ -183,6 +183,15 @@ public class Wall : Monster
         }
     }
 }
+
+public class house : Wall
+{
+    public override void Start()
+    {
+        base.Start();
+        transform.localScale = new Vector2(3f, 3f);
+    }
+}
 public class Turret : Monster
 {
     public float timer = 0;
@@ -266,7 +275,7 @@ public class GhostMonster : AngryMonster
     public override void Start()
     {
         base.Start();
-        movespeed *= 2;
+        movespeed *= 0.5f;
         playerpos = GameObject.Find("Player").transform;
         Destroy(gameObject.GetComponent<CircleCollider2D>());
         render.color = Color.grey;
