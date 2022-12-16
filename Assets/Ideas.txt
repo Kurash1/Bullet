@@ -1,0 +1,1 @@
+Ghost: Immune to player weaponry, returns to the grave after certain time, follows player
