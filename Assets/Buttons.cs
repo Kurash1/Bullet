@@ -16,7 +16,11 @@ public class Buttons : MonoBehaviour
     [SerializeField] GameObject helpmenu;
     [SerializeField] Text highscore;
     [SerializeField] Text worldhighscore;
+    public static Button infobtn;
+    public static Text infotxt;
     public static string[] abilities = { "Shotgun", "Necromancy", "Wall", "Turret", "Machine Gun", "Comet", "Fire Circle", "Rocket Launcher", "Ghost", "Alluring Scent", "Teleport", "Slash" };
+    public static string[] upgrades = { "Aura of Hatred", "Back-Up Mag", "Shoulder Gun", "Dual Wield", "Aura of Hatred", "Landmine" };
+    public static Dictionary<string, string> ability_descriptions = new Dictionary<string, string>();
     // Start is called before the first frame update
     IEnumerator GetWorlScore()
     {
@@ -48,8 +52,25 @@ public class Buttons : MonoBehaviour
             }
         }
     }
+    void writeToDict(string key, string value) { if(!Buttons.ability_descriptions.ContainsKey(key)) { Buttons.ability_descriptions.Add(key, value); } }
     void Start()
     {
+        writeToDict("Shotgun","The Shotgun allows you to fire off many bullets in a cone towards your mouse position.");
+        writeToDict("Necromancy", "Necromancy raises previously killed enemies as bullets that fly towards your mouse position.");
+        writeToDict("Wall", "The Wall creates two walls to the front and back of your character.");
+        writeToDict("Turret", "You summon a turret that shoots in random directions, this turrent doesn't provide points, but does provide abilities.");
+        writeToDict("Machine Gun", "Loads/Reloads 30 bullets to your machine gun which will be consantly shot towards your mouse position.");
+        writeToDict("Comet", "Makes your character into a comet firing off short lived bullets in all directions for a short duration.");
+        writeToDict("Fire Circle", "Creates a firey circle that spreads out from your character.");
+        writeToDict("Rocket Launcher", "Shoots out a bullet that explodes on contact.");
+        writeToDict("Ghost", "Turns your character into a ghost for a short duration, in ghost form you are immortal, and your bullets can additionally kill ghost type enemies.");
+        writeToDict("Alluring Scent", "Spawns an Alluring Scent that pulls simple movement enemies towards it.");
+        writeToDict("Teleport", "Teleports you to your mouse position and kill everything between your old and new positions.");
+        writeToDict("Slash", "Grants you 5 slashes you can use to slash with your right click.");
+
+        Buttons.infobtn = transform.GetChild(6).gameObject.GetComponent<Button>();
+        Buttons.infotxt = Buttons.infobtn.transform.GetChild(0).GetComponent<Text>();
+
         if (!PlayerPrefs.HasKey("ability0"))
             PlayerPrefs.SetString("ability0", "Fire Circle");
         if (!PlayerPrefs.HasKey("ability0_key"))
@@ -87,6 +108,8 @@ public class Buttons : MonoBehaviour
         help.onClick.AddListener(Help);
         close.onClick.AddListener(Close);
         name_in.onValueChanged.AddListener(NameChange);
+        infobtn.onClick.AddListener(() => { infobtn.gameObject.SetActive(false); });
+        infobtn.gameObject.SetActive(false);
         GameObject abi = GameObject.Find("Abilities");
         for(int i = 0; i < 6; i++)
             abi.transform.GetChild(i).gameObject.AddComponent<AbilitySelector>().index = i;
@@ -121,7 +144,48 @@ public class Buttons : MonoBehaviour
         
     }
 }
+public class UpgradeSelector : MonoBehaviour
+{
+    private Dropdown options;
+    private Image sprite;
+    public int index;
+    private int findindex(string s)
+    {
+        for (int i = 0; i < options.options.Count; i++)
+            if (options.options[i].text == s)
+                return i;
+        return 0;
+    }
+    private void Start()
+    {
+        options = gameObject.transform.GetChild(0).gameObject.GetComponent<Dropdown>();
+        sprite = gameObject.transform.GetChild(1).GetChild(0).gameObject.GetComponent<Image>();
 
+        List<Dropdown.OptionData> opt = new List<Dropdown.OptionData>();
+        for (int i = 0; i < Buttons.upgrades.Length; i++)
+            opt.Add(new Dropdown.OptionData(Buttons.upgrades[i], Resources.Load<Sprite>("upgrades/" + Buttons.abilities[i])));
+        options.options = opt;
+
+        options.value = findindex(PlayerPrefs.GetString("ability" + index));
+        options.transform.GetChild(1).GetComponent<ScrollRect>().scrollSensitivity = 20f;
+
+        sprite.sprite = Resources.Load<Sprite>("upgrades/" + options.options[options.value].text);
+
+        //key.text = PlayerPrefs.GetString("upgrades" + index + "_key");
+
+        //sprite.gameObject.GetComponent<Button>().onClick.AddListener(() => {
+        //    Buttons.infobtn.gameObject.SetActive(true);
+        //    Buttons.infotxt.text = Buttons.ability_descriptions[options.options[options.value].text];
+        //});
+        //
+        //key.gameObject.transform.GetComponentInParent<Button>().onClick.AddListener(Key);
+        //options.onValueChanged.AddListener(delegate
+        //{
+        //    PlayerPrefs.SetString("ability" + index, options.options[options.value].text);
+        //    sprite.sprite = Resources.Load<Sprite>("Abilities/" + options.options[options.value].text);
+        //});
+    }
+}
 public class AbilitySelector : MonoBehaviour
 {
     private Dropdown options;
@@ -152,6 +216,11 @@ public class AbilitySelector : MonoBehaviour
         sprite.sprite = Resources.Load<Sprite>("Abilities/"+options.options[options.value].text);
 
         key.text = PlayerPrefs.GetString("ability" + index + "_key");
+        
+        sprite.gameObject.GetComponent<Button>().onClick.AddListener(() => {
+            Buttons.infobtn.gameObject.SetActive(true);
+            Buttons.infotxt.text = Buttons.ability_descriptions[options.options[options.value].text];
+        });
 
         key.gameObject.transform.GetComponentInParent<Button>().onClick.AddListener(Key);
         options.onValueChanged.AddListener(delegate

@@ -4,13 +4,15 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine.Networking;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class CharacterController2d : MonoBehaviour
 {
     //Variables
     private float MoveSpeed;
-    public int killcount = 0;
+    private int killcount = 0;
     private float score = 0;
     private double timer = 0;
     //Objects
@@ -22,119 +24,134 @@ public class CharacterController2d : MonoBehaviour
     [SerializeField] private Text time;
     private float secondtimer = 1;
     private float timemult = 1;
+    [SerializeField] private GameObject pausemenu;
     //Constants
     [SerializeField] private float BaseMoveSpeed;
     //Resources
     int FireballAmount = 0;
     //Abilities
     public string upgrade = "Aura of Hatred"; //Back-Up Mag //Shoulder Gun //Dual Wield //Aura of Hatred //Landmine
-    public ability[] abilities = new ability[6];
+    public Dictionary<string,ability> abilities = new Dictionary<string, ability>();
     public byte immortality = 0;
+    public void addKill(int amount = 1) { killcount += amount; scor.text = "Killcount: " + killcount.ToString(); }
+    public int getKillCount() { return killcount; }
     public void giveAmmo(int amount) { FireballAmount += amount; BulletField.text = FireballAmount.ToString(); }
     void Start()
     {
         upgrade = PlayerPrefs.GetString("upgrade");
         Camera.main.gameObject.transform.GetChild(0).GetChild(1).GetChild(0).GetChild(0).gameObject.GetComponent<Image>().sprite = Resources.Load<Sprite>("upgrades/" + upgrade);
-        void a<T>(int i) where T : ability { abilities[i] = gameObject.AddComponent<T>(); abilities[i].index = i; }
+        void a<T>(string s, int i) where T : ability { abilities.Add(s,gameObject.AddComponent<T>()); abilities[s].index = i; }
         for(int i = 0; i < 6; i++)
         {
             switch (PlayerPrefs.GetString("ability" + i))
             {
-                case "Shotgun": a<abilityShotgun>(i); break;
-                case "Machine Gun": a<abilityMachineGun>(i); break;
-                case "Comet": a<abilityComet>(i); break;
-                case "Necromancy": a<abilityNecromancy>(i); break;
-                case "Wall": a<abilityWall>(i); break;
-                case "Turret": a<abilityTurret>(i); break;
-                case "Fire Circle": a<abilityFireCircle>(i); break;
-                case "Rocket Launcher": a<abilityRocketLauncher>(i); break;
-                case "Ghost": a<abilityGhost>(i); break;
-                case "Alluring Scent": a<abilityAlluringScent>(i); break;
-                case "Teleport": a<abilityTeleport>(i); break;
-                case "Slash": a<abilitySword>(i); break;
+                case "Shotgun": a<abilityShotgun>("Shotgun",i); break;
+                case "Machine Gun": a<abilityMachineGun>("Machine Gun",i); break;
+                case "Comet": a<abilityComet>("Comet",i); break;
+                case "Necromancy": a<abilityNecromancy>("Necromancy",i); break;
+                case "Wall": a<abilityWall>("Wall",i); break;
+                case "Turret": a<abilityTurret>("Turret",i); break;
+                case "Fire Circle": a<abilityFireCircle>("Fire Circle",i); break;
+                case "Rocket Launcher": a<abilityRocketLauncher>("Rocket Launcher",i); break;
+                case "Ghost": a<abilityGhost>("Ghost",i); break;
+                case "Alluring Scent": a<abilityAlluringScent>("Alluring Scent",i); break;
+                case "Teleport": a<abilityTeleport>("Teleport",i); break;
+                case "Slash": a<abilitySword>("Slash",i); break;
             }
         }
 
         MoveSpeed = BaseMoveSpeed;
         Cursor.lockState = CursorLockMode.Confined;
     }
+    void Update()
+    {
+        timer += Time.deltaTime;
+        doTimeMult();
+        doMovement();
+        doCollisions();
+        handleFireball();
+        SpawnEnemies();
+        doRotation();
+        doCamera();
+        handleInputs();
+    }
     public void regenRandomAbility()
     {
         //Local Functions
-        bool AnyFalse(ability[] bools)
+        bool AnyFalse(Dictionary<string,ability> bools)
         {
-            for (int i = 0; i < bools.Length; i++)
-                if (!bools[i].use)
+            for (int i = 0; i < bools.Count; i++)
+                if (!bools.ElementAt(i).Value.use)
                     return true;
             return false;
         }
         void regenAbility(int index)
         {
-            abilities[index].element.SetActive(true);
-            abilities[index].use = true;
+            abilities.ElementAt(index).Value.element.SetActive(true);
+            abilities.ElementAt(index).Value.use = true;
         }
         //Actual Code
         if (AnyFalse(abilities))
         {
-            int rand = Random.Range(0, abilities.Length);
-            while (abilities[rand].use)
+            int rand = Random.Range(0, abilities.Count);
+            while (abilities.ElementAt(rand).Value.use)
             {
-                rand = Random.Range(0, abilities.Length);
+                rand = Random.Range(0, abilities.Count);
             }
             regenAbility(rand);
         }
     }
-    void Update()
+    void doTimeMult()
     {
         secondtimer += Time.deltaTime;
-        timemult = Mathf.Max(Mathf.Pow(secondtimer%30+1,3)/1000f,1) + secondtimer/30;
+        timemult = Mathf.Max(Mathf.Pow(secondtimer % 30 + 1, 3) / 1000f, 1) + secondtimer / 30;
         time.text =
         "Time (seconds)\n" +
         (int)(secondtimer) +
         "\nSpeed\n" +
         (int)(timemult * 100) + "%";
-        //Vector2 toVector2(Vector3 a) { return new Vector2(a.x, a.y); }
-        //transform.up = toVector2(Camera.ScreenToWorldPoint(Input.mousePosition) - transform.position);
+    }
+    void doRotation()
+    {
         Vector2 MousePos = Camera.ScreenToWorldPoint(Input.mousePosition);
         float AngleRad = Mathf.Atan2(MousePos.y - transform.position.y, MousePos.x - transform.position.x);
         float AngleDeg = (180 / Mathf.PI) * AngleRad;
-        //body.rotation = AngleDeg - 90;
-        //body.MoveRotation(Quaternion.LookRotation(body.position - MousePos));
         body.MoveRotation(AngleDeg - 90);
 
-        bool vector2inrange(float min_x, float max_x, float min_y, float max_y, Vector2 value) {
-            return (value.x >= min_x) && (value.x <= max_x) && (value.y >= min_y) && (value.y <= max_y); }
         arrow.up = -transform.position; 
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            SceneManager.LoadScene(0);
-        }
-        HandleMovement();
-        tryFireBall();
-        HandleCamera();
-        timer += Time.deltaTime;
+    }
+    public void Pause()
+    {
+        Time.timeScale = 0;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        pausemenu.SetActive(true);
+        pausemenu.transform.GetChild(1).GetComponent<Text>().text = "Kill Count: " + killcount + "\nTime: " + (int)secondtimer;
+        //SceneManager.LoadScene(0);
+    }
+    public void Unpause()
+    {
+        Time.timeScale = 1;
+        pausemenu.SetActive(false);
+    }
+    void SpawnEnemies()
+    {
         if (timer > (1f / timemult))
         {
-            scor.text = "Killcount: " + killcount;
             timer = 0;
             SpawnMonster<YellowMonster>();
             if (vector2inrange(-5.12f, 5.12f, -5.12f, 5.12f, transform.position))
             {
                 arrow.localPosition = new Vector3(0, 0, 2);
                 score += 1;
-                if(score % 10 == 0)
-                {
+                if (score % 10 == 0)
                     SpawnMonster<AngryMonster>();
-                }
-                if(score % 5 == 0)
+                if (score % 5 == 0)
                 {
                     FireballAmount++;
                     BulletField.text = FireballAmount.ToString();
                 }
-                if(score % 25 == 0)
-                {
+                if (score % 25 == 0)
                     switch (Random.Range(0, 2))
                     {
                         case 0:
@@ -144,19 +161,31 @@ public class CharacterController2d : MonoBehaviour
                             SpawnMonster<WhiteMonster>();
                             break;
                     }
-                }
-                if(score % 100 == 0)
-                {
+                if (score % 100 == 0)
                     SpawnMonster<GhostMonster>();
-                }
             }
             else
                 arrow.localPosition = new Vector3(0, 0, -1);
         }
+        bool vector2inrange(float min_x, float max_x, float min_y, float max_y, Vector2 value)
+        {
+            return (value.x >= min_x) && (value.x <= max_x) && (value.y >= min_y) && (value.y <= max_y);
+        }
+    }
+    void doCollisions()
+    {
         Collider2D[] col = Physics2D.OverlapCircleAll(transform.position, transform.localScale.x / 2);
-        for(int i = 0; i < col.Length; i++)
-            if (col[i].tag == "Enemy" && immortality <= 0)//!(ghost|comet) && col[i].tag == "Enemy")
+        for (int i = 0; i < col.Length; i++)
+            if (col[i].tag == "Enemy" && immortality <= 0)
                 Death();
+    }
+    void handleInputs()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            if(Time.timeScale == 0)
+                Unpause();
+            else
+                Pause();
     }
     public void Death()
     {
@@ -208,17 +237,13 @@ public class CharacterController2d : MonoBehaviour
         SceneManager.LoadScene(1);
         gameObject.SetActive(false);
     }
-    void HandleCamera()
+    void doCamera()
     {
         Camera.transform.position = new Vector3(Mathf.Lerp(Camera.transform.position.x, transform.position.x, 0.05f), Mathf.Lerp(Camera.transform.position.y,transform.position.y,0.05f), -10);
     }
-    void HandleMovement()
+    void doMovement()
     {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            regenRandomAbility();
-        }
-        if (Input.GetKey(KeyCode.LeftShift))//|comet) 
+        if (Input.GetKey(KeyCode.LeftShift))
             MoveSpeed = BaseMoveSpeed * 2;
         else
             MoveSpeed = BaseMoveSpeed;
@@ -227,15 +252,17 @@ public class CharacterController2d : MonoBehaviour
             (Input.GetAxis("Vertical")   * MoveSpeed)
         ),MoveSpeed);
     }
-    public void tryFireBall()
+    public void handleFireball()
     {
         if (Input.GetKeyDown(KeyCode.Mouse0) && FireballAmount > 0)
         {
             FireballAmount--;
             BulletField.text = FireballAmount.ToString();
-            SpawnProjectile<FireBall>().ghost = upgrade == "Ghost Hunter" || gameObject.GetComponent<abilityGhost>().active;
+            SpawnProjectile<FireBall>().ghost = upgrade == "Ghost Hunter" || abilities.ContainsKey("Ghost") && gameObject.GetComponent<abilityGhost>().active;
         }
     }
+
+    //Spawn Functions
     public T SpawnRandom<T>(Vector2 pos) where T : Component
     {
         GameObject gn = new GameObject();

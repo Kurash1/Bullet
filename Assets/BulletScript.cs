@@ -67,6 +67,9 @@ public class FireBall : MonoBehaviour
     }
     public virtual void Update()
     {
+        //Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //pos.z = transform.position.z;
+        //transform.up = pos - transform.position;
         timer += Time.deltaTime;
         body.AddForce(transform.up * movespeed * Time.deltaTime);
         if (timer > 10f)
@@ -76,7 +79,7 @@ public class FireBall : MonoBehaviour
         {
             if(hits[i].gameObject.tag == "Enemy")
             {
-                GameObject.Find("Player").GetComponent<CharacterController2d>().killcount++;
+                GameObject.Find("Player").GetComponent<CharacterController2d>().addKill();
                 if (hits[i].gameObject.GetComponent<BlackMonster>() != null)
                     if(hits[i].gameObject.GetComponent<AlluringScent>() == null)
                         GameObject.Find("Player").GetComponent<CharacterController2d>().regenRandomAbility();
@@ -91,7 +94,7 @@ public class FireBall : MonoBehaviour
             {
                 if (Vector2.Distance(transform.position, ghosts[i].transform.position) <= transform.localScale.x * 2)
                 {
-                    GameObject.Find("Player").GetComponent<CharacterController2d>().killcount++;
+                    GameObject.Find("Player").GetComponent<CharacterController2d>().addKill();
                     Destroy(ghosts[i]);
                     Destroy(gameObject);
                 }
@@ -127,7 +130,7 @@ public class Rocket : FireBall
         {
             if (hits[i].gameObject.tag == "Enemy")
             {
-                GameObject.Find("Player").GetComponent<CharacterController2d>().killcount++;
+                GameObject.Find("Player").GetComponent<CharacterController2d>().addKill();
                 if (hits[i].gameObject.GetComponent<BlackMonster>() != null)
                     if (hits[i].gameObject.GetComponent<AlluringScent>() == null)
                         GameObject.Find("Player").GetComponent<CharacterController2d>().regenRandomAbility();
@@ -184,7 +187,7 @@ public class Wall : Monster
     }
 }
 
-public class house : Wall
+public class House : Wall
 {
     public override void Start()
     {

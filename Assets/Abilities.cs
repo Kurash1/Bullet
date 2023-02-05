@@ -90,9 +90,9 @@ public class abilityMachineGun : ability
     public override void cast()
     {
         use = false;
-        ammo += (control.upgrade == "Shoulder Gun")?60:30;
-        if (control.upgrade == "Back-Up Mag")
-            control.giveAmmo(15);
+        ammo += (control.upgrade == "Shoulder Gun")?120:30;
+        if (control.upgrade == "Back-up mag")
+            control.giveAmmo(30);
     }
     public override void Update()
     {
@@ -106,6 +106,8 @@ public class abilityMachineGun : ability
             switch (control.upgrade)
             {
                 case "Shoulder Gun":
+                    ammo--;
+                    SpawnProjectile<FireBall>(Random.Range(0, Mathf.PI * 2));
                     SpawnProjectile<FireBall>(Random.Range(0, Mathf.PI * 2));
                     break;
                 case "Dual Wield":
@@ -176,11 +178,14 @@ public class abilityNecromancy : ability
     public override void cast()
     {
         base.cast();
-        for (int i = 0; i < Mathf.Min(control.killcount - lastkill,control.upgrade == "Graveyard"?150:75); i++)
+        Debug.Log(control.getKillCount());
+        for (int i = 0; i < Mathf.Min(control.getKillCount() - lastkill,75); i++)
         {
             control.SpawnRandom<FireBall>(Camera.main.ScreenToWorldPoint(Input.mousePosition)).angle = 7714;
+            if(control.upgrade == "Graveyard")
+                control.SpawnRandom<FireBall>(Camera.main.ScreenToWorldPoint(Input.mousePosition)).angle = 7714;
         }
-        lastkill = control.killcount;
+        lastkill = control.getKillCount();
         //GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Ghost");
         //for(int i = 0; i < ghosts.Length; i++)
         //{
@@ -200,7 +205,7 @@ public class abilityWall : ability
         Vector2 point = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if(control.upgrade == "House")
         {
-            SpawnMonster<house>(point).angle = (getMouseAngle() + Mathf.PI / 2);
+            SpawnMonster<House>(point).angle = (getMouseAngle() + Mathf.PI / 2);
         }
         else
         {
