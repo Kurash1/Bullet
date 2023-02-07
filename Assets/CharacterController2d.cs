@@ -39,6 +39,10 @@ public class CharacterController2d : MonoBehaviour
     void Start()
     {
         upgrade = PlayerPrefs.GetString("upgrade");
+        if(upgrade == "Companion")
+        {
+            SpawnProjectile<Companion>();
+        }
         Camera.main.gameObject.transform.GetChild(0).GetChild(1).GetChild(0).GetChild(0).gameObject.GetComponent<Image>().sprite = Resources.Load<Sprite>("upgrades/" + upgrade);
         void a<T>(string s, int i) where T : ability { abilities.Add(s,gameObject.AddComponent<T>()); abilities[s].index = i; }
         for(int i = 0; i < 6; i++)
@@ -151,7 +155,7 @@ public class CharacterController2d : MonoBehaviour
                     FireballAmount++;
                     BulletField.text = FireballAmount.ToString();
                 }
-                if (score % 25 == 0)
+                if (score % 100 == 0)
                     switch (Random.Range(0, 2))
                     {
                         case 0:
@@ -256,12 +260,27 @@ public class CharacterController2d : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0) && FireballAmount > 0)
         {
-            FireballAmount--;
-            BulletField.text = FireballAmount.ToString();
-            SpawnProjectile<FireBall>().ghost = upgrade == "Ghost Hunter" || abilities.ContainsKey("Ghost") && gameObject.GetComponent<abilityGhost>().active;
+            if(upgrade == "Shotgun" && FireballAmount >= 3) {
+                FireballAmount -= 3;
+                float angle = getMouseAngle();
+                for (float i = -0.3f; i <= 0.3f; i += 0.15f)
+                    SpawnProjectile<FireBall>(angle + i).ghost = upgrade == "Ghost Hunter" || abilities.ContainsKey("Ghost") && gameObject.GetComponent<abilityGhost>().active;
+            }
+            else
+            {
+                FireballAmount--;
+                BulletField.text = FireballAmount.ToString();
+                SpawnProjectile<FireBall>().ghost = upgrade == "Ghost Hunter" || abilities.ContainsKey("Ghost") && gameObject.GetComponent<abilityGhost>().active;
+            }
         }
     }
-
+    public float getMouseAngle()
+    {
+        return Mathf.Atan2(
+                Camera.main.ScreenToWorldPoint(Input.mousePosition).y - transform.position.y,
+                Camera.main.ScreenToWorldPoint(Input.mousePosition).x - transform.position.x
+        );
+    }
     //Spawn Functions
     public T SpawnRandom<T>(Vector2 pos) where T : Component
     {
@@ -281,6 +300,38 @@ public class CharacterController2d : MonoBehaviour
     {
         GameObject gn = new GameObject();
         gn.transform.position = transform.position;
+        return gn.AddComponent<T>();
+    }
+
+    public T SpawnProjectile<T>(float angle) where T : FireBall
+    {
+        GameObject gn = new GameObject();
+        gn.transform.position = transform.position;
+        T a = gn.AddComponent<T>();
+        a.angle = angle;
+        return a;
+    }
+    public T SpawnProjectile<T>(float angle, Vector2 pos) where T : FireBall
+    {
+        GameObject gn = new GameObject();
+        gn.transform.position = pos;
+        T _ = gn.AddComponent<T>();
+        _.angle = angle;
+        return _;
+    }
+    public void shootTimedFireball(float angle, Vector2 start, float alive, float movespeed)
+    {
+        GameObject gn = new GameObject();
+        gn.transform.position = start;
+        TimedFireball _ = gn.AddComponent<TimedFireball>();
+        _.angle = angle;
+        _.alive = alive;
+        _.movespeed = movespeed;
+    }
+    public T SpawnMonster<T>(Vector2 pos) where T : Component
+    {
+        GameObject gn = new GameObject();
+        gn.transform.position = pos;
         return gn.AddComponent<T>();
     }
 }

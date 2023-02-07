@@ -26,6 +26,7 @@ public class UiController : MonoBehaviour
     }
     public void menuer()
     {
+        player.Unpause();
         SceneManager.LoadScene(0);
     }
     // Update is called once per frame

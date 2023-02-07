@@ -28,6 +28,34 @@ public class TimedFireball : FireBall
             Destroy (gameObject);
     }
 }
+public class Companion : FireBall
+{
+    public override void Start()
+    {
+        base.Start();
+        render.color = new Color(200, 100, 0);
+    }
+    public override void Update()
+    {
+        Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        pos.z = transform.position.z;
+        transform.up = pos - transform.position;
+        timer += Time.deltaTime;
+        body.AddForce(transform.up * movespeed * Time.deltaTime);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, transform.localScale.x);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i].gameObject.tag == "Enemy")
+            {
+                GameObject.Find("Player").GetComponent<CharacterController2d>().addKill();
+                if (hits[i].gameObject.GetComponent<BlackMonster>() != null)
+                    if (hits[i].gameObject.GetComponent<AlluringScent>() == null)
+                        GameObject.Find("Player").GetComponent<CharacterController2d>().regenRandomAbility();
+                Destroy(hits[i].gameObject);
+            }
+        }
+    }
+}
 public class FireBall : MonoBehaviour
 {
     public Rigidbody2D body;
