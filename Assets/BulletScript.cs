@@ -182,7 +182,6 @@ public class Monster : MonoBehaviour
         gameObject.name = "Monster";
         gameObject.layer = 6;
         render = gameObject.AddComponent<SpriteRenderer>();
-        gameObject.AddComponent<CircleCollider2D>();
         body = gameObject.AddComponent<Rigidbody2D>();
         body.useAutoMass = false;
         body.gravityScale = 0;
@@ -200,7 +199,6 @@ public class Wall : Monster
         base.Start();
         gameObject.tag = "Helper";
         Destroy(gameObject.GetComponent<Rigidbody2D>());
-        Destroy(gameObject.GetComponent<CircleCollider2D>());
         gameObject.AddComponent<BoxCollider2D>().size = new Vector2(1,1);
         render.color = new Color(127f/255,51f/255,0f);
         render.sprite = Resources.Load<Sprite>("Square");
@@ -233,7 +231,6 @@ public class Turret : Monster
     public override void Start()
     {
         base.Start();
-        Destroy(gameObject.GetComponent<CircleCollider2D>());
         render.color = Color.blue;
         render.sprite = Resources.Load<Sprite>("Square");
         transform.localScale = new Vector2(0.4f, 0.4f);
@@ -294,6 +291,7 @@ public class AngryMonster : Monster
         render.color = Color.red;
         render.sprite = Resources.Load<Sprite>("Square");
         transform.localScale = new Vector2(0.4f, 0.4f);
+        gameObject.AddComponent<PolygonCollider2D>();
     }
 
     public virtual void Update()
@@ -311,7 +309,8 @@ public class GhostMonster : AngryMonster
         base.Start();
         movespeed *= 0.5f;
         playerpos = GameObject.Find("Player").transform;
-        Destroy(gameObject.GetComponent<CircleCollider2D>());
+        Destroy(gameObject.GetComponent<PolygonCollider2D>());
+        render.sprite = Resources.Load<Sprite>("Special");
         render.color = Color.grey;
         gameObject.tag = "Ghost";
     }
@@ -335,9 +334,10 @@ public class YellowMonster : Monster
     {
         base.Start();
         gameObject.transform.localScale = new Vector3(0.4f, 0.4f, 1);
-        render.sprite = Resources.Load<Sprite>("Square");
+        render.sprite = Resources.Load<Sprite>("Yellow");
         render.color = Color.yellow;
         transform.up = GameObject.Find("Player").transform.position - transform.position;
+        gameObject.AddComponent<PolygonCollider2D>();
     }
     public virtual void Update()
     {
@@ -359,9 +359,10 @@ public class BlackMonster : Monster
         gameObject.transform.localScale = new Vector3(0.4f, 0.4f, 1);
         body.mass *= 100f;
         movespeed *= 100f;
-        render.sprite = Resources.Load<Sprite>("Square");
+        render.sprite = Resources.Load<Sprite>("6");
         render.color = Color.black;
         transform.up = GameObject.Find("Player").transform.position - transform.position;
+        gameObject.AddComponent<PolygonCollider2D>();
     }
 
     private void Update()
