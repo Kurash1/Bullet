@@ -169,6 +169,8 @@ public class CharacterController2d : MonoBehaviour
                     }
                 if (score % 100 == 0)
                     SpawnMonster<GhostMonster>();
+                if (score % 250 == 0)
+                    SpawnMonster<RangedMonster>();
             }
             else
                 arrow.localPosition = new Vector3(0, 0, -1);

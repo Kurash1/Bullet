@@ -190,6 +190,34 @@ public class Monster : MonoBehaviour
         body.mass = 1;
     }
 }
+public class RangedMonster : Monster
+{
+    public float timer = 0;
+    public Transform player;
+    public override void Start()
+    {
+        base.Start();
+        render.color = Color.green;
+        render.sprite = Resources.Load<Sprite>("Star");
+        transform.localScale = new Vector2(0.7f, 0.7f);
+        gameObject.AddComponent<PolygonCollider2D>();
+        player = GameObject.Find("Player").transform;
+    }
+
+    public virtual void Update()
+    {
+        timer += Time.deltaTime;
+        if (timer > 1f)
+        {
+            timer = 0;
+            GameObject gn = new GameObject();
+
+            gn.transform.position = Vector2.MoveTowards(transform.position, player.position, 1f);
+            gn.transform.up = player.position - transform.position;
+            gn.AddComponent<YellowMonster>();
+        }
+    }
+}
 public class Wall : Monster
 {
     private float timer = 0;
@@ -362,7 +390,7 @@ public class BlackMonster : Monster
         render.sprite = Resources.Load<Sprite>("6");
         render.color = Color.black;
         transform.up = GameObject.Find("Player").transform.position - transform.position;
-        gameObject.AddComponent<PolygonCollider2D>();
+        gameObject.AddComponent<CircleCollider2D>();
     }
 
     private void Update()
