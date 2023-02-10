@@ -78,6 +78,8 @@ public class CharacterController2d : MonoBehaviour
         doRotation();
         doCamera();
         handleInputs();
+        //if (Input.GetKeyDown(KeyCode.V))
+        //    regenRandomAbility();
     }
     public void regenRandomAbility()
     {
@@ -260,10 +262,10 @@ public class CharacterController2d : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0) && FireballAmount > 0)
         {
-            if(upgrade == "Shotgun" && FireballAmount >= 3) {
-                FireballAmount -= 3;
+            if(upgrade == "Shotgun" && FireballAmount >= 2) {
+                FireballAmount -= 2;
                 float angle = getMouseAngle();
-                for (float i = -0.3f; i <= 0.3f; i += 0.15f)
+                for (float i = -0.15f; i <= 0.15f; i += 0.15f)
                     SpawnProjectile<FireBall>(angle + i).ghost = upgrade == "Ghost Hunter" || abilities.ContainsKey("Ghost") && gameObject.GetComponent<abilityGhost>().active;
             }
             else

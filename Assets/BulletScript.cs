@@ -33,7 +33,9 @@ public class Companion : FireBall
     public override void Start()
     {
         base.Start();
-        render.color = new Color(200, 100, 0);
+        render.color = new Color(0, 1, 1);
+        body.drag = 10;
+        movespeed *= 10;
     }
     public override void Update()
     {
@@ -41,7 +43,8 @@ public class Companion : FireBall
         pos.z = transform.position.z;
         transform.up = pos - transform.position;
         timer += Time.deltaTime;
-        body.AddForce(transform.up * movespeed * Time.deltaTime);
+        if(Vector3.Distance(pos, transform.position) > 0.1f)
+            body.AddForce(transform.up * movespeed * Time.deltaTime);
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, transform.localScale.x);
         for (int i = 0; i < hits.Length; i++)
         {
@@ -398,7 +401,7 @@ public class Landmine : AlluringScent
     public override void Start()
     {
         base.Start();
-        lifetime = 10f;
+        lifetime = 5f;
     }
     public override void death()
     {

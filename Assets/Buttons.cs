@@ -79,7 +79,7 @@ public class Buttons : MonoBehaviour
         WriteUpgrade("Landmine",  "Alluring Scent explodes when it runs out of time");
         WriteUpgrade("Shoulder Gun", "Machine gun now has 120 ammo, but you cannot control where it shoots");
         WriteUpgrade("Companion", "You have a companion that follows your mouse");
-        WriteUpgrade("Shotgun", "Your regular attack now shoots 5 bullets out, expending only 3 bullets.");
+        WriteUpgrade("Shotgun", "Your regular attack now shoots 3 bullets out, expending only 2 bullets.");
 
         Buttons.infobtn = transform.GetChild(6).gameObject.GetComponent<Button>();
         Buttons.infotxt = Buttons.infobtn.transform.GetChild(0).GetComponent<Text>();

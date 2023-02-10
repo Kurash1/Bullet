@@ -91,6 +91,8 @@ public class abilityMachineGun : ability
     {
         use = false;
         ammo += (control.upgrade == "Shoulder Gun")?120:30;
+        if (control.upgrade == "Dual Wield")
+            ammo -= 5;
         if (control.upgrade == "Back-up mag")
             control.giveAmmo(30);
     }
@@ -245,12 +247,14 @@ public class abilityGhost : ability
 {
     public bool active = false;
     Image mask;
+    SpriteRenderer player;
     float timer = 0;
     const float alivetime = 10f;
     public override void Start()
     {
         base.Start();
         mask = image.transform.parent.GetComponent<Image>();
+        player = gameObject.GetComponent<SpriteRenderer>();
     }
     public override void cast()
     {
@@ -264,8 +268,10 @@ public class abilityGhost : ability
         if (active)
         {
             timer += Time.deltaTime;
-            image.color = new Color(1, 1, 1, 1f - (timer / alivetime));
-            mask.color = new Color(1, 1, 1, 1f - (timer / alivetime));
+            
+            image.color = new Color(1, 1, 1, (1 - (timer * (1 / alivetime))));
+            mask.color = new Color(1, 1, 1, (1 - (timer * (1 / alivetime))));
+            player.color = new Color(player.color.r, player.color.g, player.color.b, 0.5f + (timer * (1 / alivetime)));
             text.text = ((int)(100 - (timer * (100/alivetime)))).ToString();
             if (timer > alivetime)
             {
