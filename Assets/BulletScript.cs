@@ -199,7 +199,7 @@ public class RangedMonster : Monster
         base.Start();
         render.color = Color.green;
         render.sprite = Resources.Load<Sprite>("Star");
-        transform.localScale = new Vector2(0.7f, 0.7f);
+        transform.localScale = new Vector2(0.6f, 0.6f);
         gameObject.AddComponent<PolygonCollider2D>();
         player = GameObject.Find("Player").transform;
     }
@@ -212,7 +212,7 @@ public class RangedMonster : Monster
             timer = 0;
             GameObject gn = new GameObject();
 
-            gn.transform.position = Vector2.MoveTowards(transform.position, player.position, 1f);
+            gn.transform.position = Vector2.MoveTowards(transform.position, player.position, 0.61f);
             gn.transform.up = player.position - transform.position;
             gn.AddComponent<YellowMonster>();
         }
