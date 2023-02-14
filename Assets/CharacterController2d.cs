@@ -26,16 +26,28 @@ public class CharacterController2d : MonoBehaviour
     private float timemult = 1;
     [SerializeField] private GameObject pausemenu;
     //Constants
-    [SerializeField] private float BaseMoveSpeed;
+    [SerializeField] public float BaseMoveSpeed;
+    float DefaultTimeRate = 1.0f;
     //Resources
-    int FireballAmount = 0;
+    private int FireballAmount = 0;
     //Abilities
     public string upgrade = "Aura of Hatred"; //Back-Up Mag //Shoulder Gun //Dual Wield //Aura of Hatred //Landmine
     public Dictionary<string,ability> abilities = new Dictionary<string, ability>();
     public byte immortality = 0;
     public void addKill(int amount = 1) { killcount += amount; scor.text = "Killcount: " + killcount.ToString(); }
     public int getKillCount() { return killcount; }
-    public void giveAmmo(int amount) { FireballAmount += amount; BulletField.text = FireballAmount.ToString(); }
+    public void giveAmmo(int amount) { if (upgrade == "Companion") return; FireballAmount += amount; BulletField.text = FireballAmount.ToString(); }
+    public int getAmmo() { return FireballAmount; }
+    public void SetSpeed(float speed)
+    {
+        BaseMoveSpeed = speed;
+        MoveSpeed = speed;
+    }
+    public void SetTimeRate(float timerate)
+    {
+        DefaultTimeRate = timerate;
+        Time.timeScale = timerate;
+    }
     void Start()
     {
         upgrade = PlayerPrefs.GetString("upgrade");
@@ -61,6 +73,7 @@ public class CharacterController2d : MonoBehaviour
                 case "Alluring Scent": a<abilityAlluringScent>("Alluring Scent",i); break;
                 case "Teleport": a<abilityTeleport>("Teleport",i); break;
                 case "Slash": a<abilitySword>("Slash",i); break;
+                case "Slow Time": a<abilityTimeSlow>("Slow Time",i); break;
             }
         }
 
@@ -78,8 +91,13 @@ public class CharacterController2d : MonoBehaviour
         doRotation();
         doCamera();
         handleInputs();
-        //if (Input.GetKeyDown(KeyCode.V))
-        //    regenRandomAbility();
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            regenRandomAbility();
+            giveAmmo(10);
+        }
+#endif
     }
     public void regenRandomAbility()
     {
@@ -137,7 +155,7 @@ public class CharacterController2d : MonoBehaviour
     }
     public void Unpause()
     {
-        Time.timeScale = 1;
+        Time.timeScale = DefaultTimeRate;
         pausemenu.SetActive(false);
     }
     void SpawnEnemies()
@@ -197,6 +215,28 @@ public class CharacterController2d : MonoBehaviour
     }
     public void Death()
     {
+        StartCoroutine(GetWorlScore());
+        if (!File.Exists(Application.dataPath + "\\save.k"))
+        {
+            File.Create(Application.dataPath + "\\save.k").Close();
+            File.WriteAllText(Application.dataPath + "\\save.k", "score = 0");
+        }
+        string[] savefile = File.ReadAllLines(Application.dataPath + "\\save.k");
+        for (int i = 0; i < savefile.Length; i++)
+        {
+            if(Regex.IsMatch(savefile[i],"score = [0-9]+"))
+            {
+                int oldscore = int.Parse(new Regex("[0-9]+").Match(savefile[i]).Value);
+                if(killcount > oldscore)
+                {
+                    savefile[i] = "score = " + killcount;
+                }
+            }
+        }
+        File.WriteAllLines(Application.dataPath + "\\save.k", savefile);
+        SetTimeRate(1);
+        SceneManager.LoadScene(1);
+        //gameObject.SetActive(false);
         //Local Function
         IEnumerator GetWorlScore()
         {
@@ -222,28 +262,6 @@ public class CharacterController2d : MonoBehaviour
                 }
             }
         }
-        //Code
-        StartCoroutine(GetWorlScore());
-        if (!File.Exists(Application.dataPath + "\\save.k"))
-        {
-            File.Create(Application.dataPath + "\\save.k").Close();
-            File.WriteAllText(Application.dataPath + "\\save.k", "score = 0");
-        }
-        string[] savefile = File.ReadAllLines(Application.dataPath + "\\save.k");
-        for (int i = 0; i < savefile.Length; i++)
-        {
-            if(Regex.IsMatch(savefile[i],"score = [0-9]+"))
-            {
-                int oldscore = int.Parse(new Regex("[0-9]+").Match(savefile[i]).Value);
-                if(killcount > oldscore)
-                {
-                    savefile[i] = "score = " + killcount;
-                }
-            }
-        }
-        File.WriteAllLines(Application.dataPath + "\\save.k", savefile);
-        SceneManager.LoadScene(1);
-        gameObject.SetActive(false);
     }
     void doCamera()
     {
@@ -264,18 +282,18 @@ public class CharacterController2d : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0) && FireballAmount > 0)
         {
-            if(upgrade == "Shotgun" && FireballAmount >= 2) {
-                FireballAmount -= 2;
+            if(upgrade == "Shotgun" && FireballAmount >= 3) {
+                FireballAmount -= 3;
                 float angle = getMouseAngle();
-                for (float i = -0.15f; i <= 0.15f; i += 0.15f)
+                for (float i = -0.3f; i <= 0.3f; i += 0.15f)
                     SpawnProjectile<FireBall>(angle + i).ghost = upgrade == "Ghost Hunter" || abilities.ContainsKey("Ghost") && gameObject.GetComponent<abilityGhost>().active;
             }
             else
             {
                 FireballAmount--;
-                BulletField.text = FireballAmount.ToString();
                 SpawnProjectile<FireBall>().ghost = upgrade == "Ghost Hunter" || abilities.ContainsKey("Ghost") && gameObject.GetComponent<abilityGhost>().active;
             }
+            BulletField.text = FireballAmount.ToString();
         }
     }
     public float getMouseAngle()

@@ -83,6 +83,48 @@ public class abilityShotgun : ability
             SpawnProjectile<FireBall>(angle + i);
     }
 }
+public class abilityTimeSlow : ability
+{
+    public bool active = false;
+    public float timer = 0;
+    public Image mask;
+    public float BaseMoveSpeed;
+    public override void Start()
+    {
+        base.Start();
+        mask = image.transform.parent.GetComponent<Image>();
+        BaseMoveSpeed = control.BaseMoveSpeed;
+    }
+    public override void cast()
+    {
+        use = false;
+        control.SetTimeRate(0.5f);
+        control.SetSpeed(BaseMoveSpeed * 2);
+        active = true;
+        timer = 0;
+    }
+    public override void Update()
+    {
+        base.Update();
+        if (active)
+        {
+            timer += Time.deltaTime;
+            image.color = new Color(1, 1, 1, 1f - (timer / 5));
+            mask.color = new Color(1, 1, 1, 1f - (timer / 5));
+            text.text = ((int)(100 - (timer * 20))).ToString();
+            if (timer > 5f)
+            {
+                control.SetTimeRate(1);
+                control.SetSpeed(BaseMoveSpeed);
+                image.color = Color.white;
+                mask.color = image.color;
+                text.text = key.ToString();
+                element.SetActive(use);
+                active = false;
+            }
+        }
+    }
+}
 public class abilityMachineGun : ability
 {
     public int ammo = 0;
@@ -90,16 +132,23 @@ public class abilityMachineGun : ability
     public override void cast()
     {
         use = false;
-        ammo += (control.upgrade == "Shoulder Gun")?120:30;
+        ammo += (control.upgrade == "Shoulder Gun")?300:30;
         if (control.upgrade == "Dual Wield")
             ammo -= 5;
-        if (control.upgrade == "Back-up mag")
+        if (control.upgrade == "Back-Up Mag")
             control.giveAmmo(30);
     }
     public override void Update()
     {
         base.Update();
         timer += Time.deltaTime;
+        if(Input.GetKeyDown(KeyCode.Mouse1) && control.upgrade == "Back-Up Mag")
+        {
+            ammo += control.getAmmo();
+            control.giveAmmo(-control.getAmmo());
+            text.text = ammo.ToString();
+            element.SetActive(true);
+        }
         if (timer > 0.1f && ammo > 0)
         {
             timer = 0;
@@ -108,7 +157,7 @@ public class abilityMachineGun : ability
             switch (control.upgrade)
             {
                 case "Shoulder Gun":
-                    ammo--;
+                    ammo -= 2;
                     SpawnProjectile<FireBall>(Random.Range(0, Mathf.PI * 2));
                     SpawnProjectile<FireBall>(Random.Range(0, Mathf.PI * 2));
                     break;
@@ -375,7 +424,7 @@ public class Slash : MonoBehaviour
     }
     private void Update()
     {
-        shootTimedFireball(angle, transform.position, 0.15f, 1000f);
+        shootTimedFireball(angle, transform.position, 0.2f, 2000f);
         angle += dir ? 0.1f : -0.1f;
         if (dir) { 
             if(angle > (startangle + 4))

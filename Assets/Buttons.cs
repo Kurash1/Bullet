@@ -19,7 +19,7 @@ public class Buttons : MonoBehaviour
     [SerializeField] Text worldhighscore;
     public static Button infobtn;
     public static Text infotxt;
-    public static string[] abilities = { "Shotgun", "Necromancy", "Wall", "Turret", "Machine Gun", "Comet", "Fire Circle", "Rocket Launcher", "Ghost", "Alluring Scent", "Teleport", "Slash" };
+    public static string[] abilities = { "Shotgun", "Slow Time", "Necromancy", "Wall", "Turret", "Machine Gun", "Comet", "Fire Circle", "Rocket Launcher", "Ghost", "Alluring Scent", "Teleport", "Slash" };
     public static string[] upgrades = { "Aura of Hatred", "Back-Up Mag", "Companion", "Shotgun", "Dual Wield", "Ghost Hunter", "Graveyard", "House", "Landmine", "Shoulder Gun" };
     public static Dictionary<string, string> ability_descriptions = new Dictionary<string, string>();
     public static Dictionary<string, string> upgrade_descriptions = new Dictionary<string, string>();
@@ -59,6 +59,7 @@ public class Buttons : MonoBehaviour
     void Start()
     {
         WriteAbility("Shotgun","The Shotgun allows you to fire off many bullets in a cone towards your mouse position.");
+        WriteAbility("Slow Time","Slows down time for a short period of time.");
         WriteAbility("Necromancy", "Necromancy raises previously killed enemies as bullets that fly towards your mouse position.");
         WriteAbility("Wall", "The Wall creates two walls to the front and back of your character.");
         WriteAbility("Turret", "You summon a turret that shoots in random directions, this turrent doesn't provide points, but does provide abilities.");
@@ -71,15 +72,15 @@ public class Buttons : MonoBehaviour
         WriteAbility("Teleport", "Teleports you to your mouse position and kill everything between your old and new positions.");
         WriteAbility("Slash", "Grants you 5 slashes you can use to slash with your right click.");
         WriteUpgrade("Aura of Hatred", "Your Alluring Scent now repels enemies");
-        WriteUpgrade("Back-Up Mag",  "When you use a machine gun you are given an additonal 30 regular ammo");
+        WriteUpgrade("Back-Up Mag",  "When you use a machine gun you are given an additonal 30 regular ammo, Additionally you can right-click to give all of your ammo to your machine gun");
         WriteUpgrade("Dual Wield",  "Machine gun shoots two bullets every time now");
         WriteUpgrade("Ghost Hunter",  "Allows your regular bullets to kill ghosts");
         WriteUpgrade("Graveyard",  "Doubles the amount of undead summoned by necromancy");
         WriteUpgrade("House",  "Changes wall to build a house around you");
         WriteUpgrade("Landmine",  "Alluring Scent explodes when it runs out of time");
-        WriteUpgrade("Shoulder Gun", "Machine gun now has 120 ammo, but you cannot control where it shoots");
-        WriteUpgrade("Companion", "You have a companion that follows your mouse");
-        WriteUpgrade("Shotgun", "Your regular attack now shoots 3 bullets out, expending only 2 bullets.");
+        WriteUpgrade("Shoulder Gun", "Machine gun now has 300 ammo, but you cannot control where it shoots");
+        WriteUpgrade("Companion", "You have a companion that follows your mousel, but you cannot shoot regular bullets.");
+        WriteUpgrade("Shotgun", "Your regular attack now shoots 5 bullets out, expending only 3 bullets.");
 
         Buttons.infobtn = transform.GetChild(6).gameObject.GetComponent<Button>();
         Buttons.infotxt = Buttons.infobtn.transform.GetChild(0).GetComponent<Text>();
@@ -107,7 +108,13 @@ public class Buttons : MonoBehaviour
         if (!PlayerPrefs.HasKey("ability5"))
             PlayerPrefs.SetString("ability5", "Alluring Scent"); 
         if (!PlayerPrefs.HasKey("ability5_key"))
-            PlayerPrefs.SetString("ability5_key", "E"); 
+            PlayerPrefs.SetString("ability5_key", "E");
+        if (!PlayerPrefs.HasKey("upgrade"))
+            PlayerPrefs.SetString("upgrade", "Shotgun");
+        if (!PlayerPrefs.HasKey("Music"))
+            PlayerPrefs.SetString("Music", "False");
+        if (!PlayerPrefs.HasKey("MusicVolume"))
+            PlayerPrefs.SetFloat("MusicVolume", 0);
 
         name_in.text = PlayerPrefs.GetString("name");
         StartCoroutine(GetWorlScore());
