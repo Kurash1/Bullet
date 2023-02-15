@@ -229,7 +229,7 @@ public class abilityNecromancy : ability
     public override void cast()
     {
         base.cast();
-        Debug.Log(control.getKillCount());
+        //Debug.Log(control.getKillCount());
         for (int i = 0; i < Mathf.Min(control.getKillCount() - lastkill,75); i++)
         {
             control.SpawnRandom<FireBall>(Camera.main.ScreenToWorldPoint(Input.mousePosition)).angle = 7714;
@@ -267,10 +267,57 @@ public class abilityWall : ability
 }
 public class abilityTurret : ability
 {
+    bool active;
+    float timer = 0;
+    float timer2 = 0;
+    Image mask;
+    public override void Start()
+    {
+        base.Start();
+        mask = image.transform.parent.GetComponent<Image>();
+    }
     public override void cast()
     {
-        base.cast();
-        SpawnMonster<Turret>(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (control.upgrade == "Mounted Turret")
+        {
+            use = false;
+            timer = 0;
+            timer2 = 0;
+            active = true;
+        }
+        else { 
+            base.cast();
+            SpawnMonster<Turret>(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        }
+    }
+    public override void Update()
+    {
+        base.Update();
+        if (active)
+        {
+            timer += Time.deltaTime;
+            timer2 += Time.deltaTime;
+            image.color = new Color(1, 1, 1, 1f - (timer / 20));
+            mask.color = new Color(1, 1, 1, 1f - (timer / 20));
+            text.text = ((int)(100 - (timer * 5))).ToString();
+            if(timer2 > 1f)
+            {
+                timer2 = 0;
+                float angle = Random.Range(0f, Mathf.PI * 2);
+                for (float i = -0.3f; i <= 0.3f; i += 0.1f)
+                    SpawnProjectile<FireBall>(angle + i);
+            }
+            if (timer > 20f)
+            {
+                timer = 0;
+                timer2 = 0;
+                image.color = Color.white;
+                mask.color = image.color;
+                text.text = key.ToString();
+                element.SetActive(use);
+                active = false;
+            }
+        }
     }
 }
 public class abilityFireCircle : ability

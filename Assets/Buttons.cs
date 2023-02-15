@@ -20,7 +20,7 @@ public class Buttons : MonoBehaviour
     public static Button infobtn;
     public static Text infotxt;
     public static string[] abilities = { "Shotgun", "Slow Time", "Necromancy", "Wall", "Turret", "Machine Gun", "Comet", "Fire Circle", "Rocket Launcher", "Ghost", "Alluring Scent", "Teleport", "Slash" };
-    public static string[] upgrades = { "Aura of Hatred", "Back-Up Mag", "Companion", "Shotgun", "Dual Wield", "Ghost Hunter", "Graveyard", "House", "Landmine", "Shoulder Gun" };
+    public static string[] upgrades = { "Aura of Hatred", "Mounted Turret", "Back-Up Mag", "Companion", "Shotgun", "Dual Wield", "Ghost Hunter", "Graveyard", "House", "Landmine", "Shoulder Gun" };
     public static Dictionary<string, string> ability_descriptions = new Dictionary<string, string>();
     public static Dictionary<string, string> upgrade_descriptions = new Dictionary<string, string>();
     // Start is called before the first frame update

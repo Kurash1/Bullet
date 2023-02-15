@@ -125,7 +125,9 @@ public class FireBall : MonoBehaviour
             {
                 if (Vector2.Distance(transform.position, ghosts[i].transform.position) <= transform.localScale.x * 2)
                 {
-                    GameObject.Find("Player").GetComponent<CharacterController2d>().addKill();
+                    CharacterController2d c = GameObject.Find("Player").GetComponent<CharacterController2d>();
+                    c.addKill();
+                    c.regenRandomAbility();
                     Destroy(ghosts[i]);
                     Destroy(gameObject);
                 }
@@ -335,7 +337,7 @@ public class GhostMonster : AngryMonster
     public override void Start()
     {
         base.Start();
-        movespeed *= 0.5f;
+        //movespeed *= 0.5f;
         playerpos = GameObject.Find("Player").transform;
         Destroy(gameObject.GetComponent<PolygonCollider2D>());
         render.sprite = Resources.Load<Sprite>("Special");

@@ -36,7 +36,11 @@ public class CharacterController2d : MonoBehaviour
     public byte immortality = 0;
     public void addKill(int amount = 1) { killcount += amount; scor.text = "Killcount: " + killcount.ToString(); }
     public int getKillCount() { return killcount; }
-    public void giveAmmo(int amount) { if (upgrade == "Companion") return; FireballAmount += amount; BulletField.text = FireballAmount.ToString(); }
+    public void giveAmmo(int amount) {
+        if (upgrade == "Companion") return;
+        FireballAmount += amount;
+        BulletField.text = FireballAmount.ToString(); 
+    }
     public int getAmmo() { return FireballAmount; }
     public void SetSpeed(float speed)
     {
@@ -79,6 +83,8 @@ public class CharacterController2d : MonoBehaviour
 
         MoveSpeed = BaseMoveSpeed;
         Cursor.lockState = CursorLockMode.Confined;
+        regenRandomAbility();
+        giveAmmo(10);
     }
     void Update()
     {
@@ -172,8 +178,7 @@ public class CharacterController2d : MonoBehaviour
                     SpawnMonster<AngryMonster>();
                 if (score % 5 == 0)
                 {
-                    FireballAmount++;
-                    BulletField.text = FireballAmount.ToString();
+                    giveAmmo(1);
                 }
                 if (score % 100 == 0)
                     switch (Random.Range(0, 2))
